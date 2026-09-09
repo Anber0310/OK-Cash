@@ -51,6 +51,7 @@ function CalendarPage() {
 
   const dotClass = (kind: string, priority: string | null) => {
     if (kind === "goal") return "bg-brand";
+    if (kind === "income") return "bg-accent";
     if (priority === "critical") return "bg-rose";
     if (priority === "important") return "bg-amber";
     return "bg-mint";
@@ -120,6 +121,10 @@ function CalendarPage() {
               <span className="size-2 rounded-full bg-brand" />
               Meta
             </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-accent" />
+              Ingreso
+            </span>
           </div>
         </GlassCard>
 
@@ -139,7 +144,11 @@ function CalendarPage() {
                     ) : null}
                   </div>
                   <div className="text-[11px] text-inksoft">
-                    {event.kind === "payment" ? "Pago" : "Meta de ahorro"}
+                    {event.kind === "payment"
+                      ? "Pago"
+                      : event.kind === "income"
+                        ? "Ingreso previsto"
+                        : "Meta de ahorro"}
                   </div>
                 </div>
                 <span className={`size-2 shrink-0 rounded-full ${dotClass(event.kind, event.priority)}`} />

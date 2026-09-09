@@ -113,6 +113,7 @@ function ScenarioSummary() {
           <div className="mt-4 space-y-2 text-[12px]">
             {[
               ["Saldo inicial", withPurchase.breakdown.startingBalance],
+              ["Ingresos previstos", withPurchase.breakdown.expectedIncome],
               ["Dinero utilizado", -withPurchase.breakdown.amountUsed],
               ["Pagos próximos", -withPurchase.breakdown.upcomingPayments],
               ["Gastos necesarios", -withPurchase.breakdown.essentialExpenses],

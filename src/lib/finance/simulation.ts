@@ -121,6 +121,7 @@ export function simulate(
 
   const breakdown: ScenarioBreakdown = {
     startingBalance,
+    expectedIncome: income,
     amountUsed,
     upcomingPayments: upcoming,
     essentialExpenses: essentials,

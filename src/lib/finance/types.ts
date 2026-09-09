@@ -127,6 +127,8 @@ export interface GoalImpact {
 
 export interface ScenarioBreakdown {
   startingBalance: number;
+  /** Ingresos previstos dentro del horizonte. */
+  expectedIncome: number;
   amountUsed: number;
   upcomingPayments: number;
   essentialExpenses: number;

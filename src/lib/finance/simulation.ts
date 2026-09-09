@@ -182,10 +182,21 @@ export function compareScenarios(
           options,
         );
 
-  const scenarios = [current, withPurchase, alternative].map((s, i) => ({ ...s, id: `${s.id}_${i}` }));
+  const currentScenario: Scenario = { ...current, id: `${current.id}_0` };
+  const actionScenario: Scenario = { ...withPurchase, id: `${withPurchase.id}_1` };
+  const alternativeScenario: Scenario = { ...alternative, id: `${alternative.id}_2` };
+
+  const scenarios = [currentScenario, actionScenario, alternativeScenario];
   const safest = scenarios.reduce((best, s) =>
     s.breakdown.marginForSurprises > best.breakdown.marginForSurprises ? s : best,
   );
 
-  return { action, scenarios, safestScenarioId: safest.id };
+  return {
+    action,
+    scenarios,
+    current: currentScenario,
+    withAction: actionScenario,
+    alternative: alternativeScenario,
+    safestScenarioId: safest.id,
+  };
 }

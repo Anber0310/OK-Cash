@@ -81,6 +81,14 @@ export interface CalendarEvent {
   priority: PaymentPriority | null;
 }
 
+/** Ingreso previsto (nómina, pago de cliente, etc.). */
+export interface ExpectedIncome {
+  id: string;
+  name: string;
+  amount: number;
+  date: string; // ISO
+}
+
 /** Fotografía completa de la situación financiera en un momento dado. */
 export interface FinancialSnapshot {
   user: UserProfile;
@@ -88,6 +96,7 @@ export interface FinancialSnapshot {
   transactions: Transaction[];
   payments: Payment[];
   expenses: RecurringExpense[];
+  incomes: ExpectedIncome[];
   goals: Goal[];
   asOf: string; // ISO
 }

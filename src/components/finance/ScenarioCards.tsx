@@ -82,7 +82,7 @@ export function ScenarioCard({
     <div className="relative rounded-2xl glass p-4 lift">
       {safest ? (
         <span className="absolute -top-2.5 right-3 rounded-full bg-mint px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink">
-          Más margen
+          Más holgura
         </span>
       ) : null}
       <div className={cn("text-[10px] font-bold uppercase tracking-wider", safest ? "text-mint" : "text-inksoft")}>
@@ -116,7 +116,7 @@ export function ScenarioGrid({ comparison }: { comparison: ScenarioComparison })
           key={scenario.id}
           scenario={scenario}
           highlighted={index === 1}
-          safest={index !== 1 && scenario.id === comparison.safestScenarioId}
+          safest={index === 2 && scenario.id === comparison.safestScenarioId}
         />
       ))}
     </div>

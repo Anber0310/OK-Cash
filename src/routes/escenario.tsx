@@ -1,31 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
 import { RISK_LABEL, RiskBar, ScenarioGrid } from "@/components/finance/ScenarioCards";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, percent } from "@/lib/finance/format";
 import { defaultScenarioInput, loadScenarioInput, type ScenarioInput } from "@/lib/finance/scenario-input";
 
 export const Route = createFileRoute("/escenario")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Resumen del escenario — Clarity" },
+      { title: "Resumen del escenario — OK cash" },
       {
         name: "description",
         content:
           "Resumen de la decisión simulada: dinero restante, reserva, margen para imprevistos e impacto en tus metas.",
       },
-      { property: "og:title", content: "Resumen del escenario — Clarity" },
+      { property: "og:title", content: "Resumen del escenario — OK cash" },
       {
         property: "og:description",
         content: "Lo que pasaría con tu dinero si tomas esta decisión, explicado con claridad.",
       },
     ],
   }),
-  component: ScenarioSummary,
+  component: () => (
+    <SetupGate>
+      <ScenarioSummary />
+    </SetupGate>
+  ),
 });
 
 function ScenarioSummary() {

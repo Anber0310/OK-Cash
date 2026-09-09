@@ -1,27 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import { calendarEvents } from "@/lib/finance/analysis";
 import { formatMoney, formatShortDate } from "@/lib/finance/format";
 
 export const Route = createFileRoute("/calendario")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Calendario de tu dinero — Clarity" },
+      { title: "Calendario de tu dinero — OK cash" },
       {
         name: "description",
-        content: "Fechas de pagos, gastos importantes y metas en una vista mensual clara y fácil de leer.",
+        content: "Fechas de pagos, ingresos previstos y metas en una vista mensual clara y fácil de leer.",
       },
-      { property: "og:title", content: "Calendario de tu dinero — Clarity" },
+      { property: "og:title", content: "Calendario de tu dinero — OK cash" },
       {
         property: "og:description",
         content: "Todas tus fechas importantes de dinero en un solo lugar.",
       },
     ],
   }),
-  component: CalendarPage,
+  component: () => (
+    <SetupGate>
+      <CalendarPage />
+    </SetupGate>
+  ),
 });
 
 const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];

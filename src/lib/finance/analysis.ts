@@ -176,14 +176,17 @@ export function calendarEvents(snapshot: FinancialSnapshot): CalendarEvent[] {
     priority: p.priority,
   }));
 
-  const fromGoals: CalendarEvent[] = snapshot.goals.map((g) => ({
-    id: `goal_${g.id}`,
-    date: g.targetDate,
-    title: `Meta: ${g.name}`,
-    amount: g.targetAmount - g.savedAmount,
-    kind: "goal",
-    priority: null,
-  }));
+  // Solo se incluyen metas con fecha objetivo definida por la persona.
+  const fromGoals: CalendarEvent[] = snapshot.goals
+    .filter((g) => Boolean(g.targetDate))
+    .map((g) => ({
+      id: `goal_${g.id}`,
+      date: g.targetDate,
+      title: `Meta: ${g.name}`,
+      amount: g.targetAmount - g.savedAmount,
+      kind: "goal",
+      priority: null,
+    }));
 
   const fromIncomes: CalendarEvent[] = snapshot.incomes.map((i) => ({
     id: `inc_${i.id}`,

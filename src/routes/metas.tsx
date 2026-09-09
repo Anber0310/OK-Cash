@@ -1,28 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
 
 export const Route = createFileRoute("/metas")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Tus metas — Clarity" },
+      { title: "Tus metas — OK cash" },
       {
         name: "description",
         content: "Mira el avance de tus metas de ahorro y cómo una decisión de gasto podría afectarlas.",
       },
-      { property: "og:title", content: "Tus metas — Clarity" },
+      { property: "og:title", content: "Tus metas — OK cash" },
       {
         property: "og:description",
         content: "Avance de tus metas y el efecto de cada decisión sobre ellas.",
       },
     ],
   }),
-  component: GoalsPage,
+  component: () => (
+    <SetupGate>
+      <GoalsPage />
+    </SetupGate>
+  ),
 });
 
 function GoalsPage() {
@@ -35,17 +39,40 @@ function GoalsPage() {
   );
   const impacts = comparison.withAction.goalImpacts;
 
+  if (snapshot.goals.length === 0) {
+    return (
+      <AppShell greeting="Tus metas">
+        <GlassCard>
+          <SectionTitle title="Todavía no tienes metas" />
+          <p className="mt-3 text-sm leading-relaxed text-inksoft">
+            Cuando agregues una meta de ahorro verás aquí su avance y cómo la afectaría cada decisión.
+          </p>
+          <Link
+            to="/configuracion"
+            className="mt-5 inline-block rounded-xl gradient-brand px-4 py-2.5 text-sm font-semibold text-white shadow-brand-glow"
+          >
+            Agregar una meta
+          </Link>
+        </GlassCard>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell greeting="Tus metas">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {snapshot.goals.map((goal) => {
-          const progress = Math.min(1, goal.savedAmount / goal.targetAmount);
+          const progress = goal.targetAmount > 0 ? Math.min(1, goal.savedAmount / goal.targetAmount) : 0;
           const impact = impacts.find((i) => i.goalId === goal.id);
           return (
             <GlassCard key={goal.id} interactive>
               <SectionTitle
                 title={goal.name}
-                aside={<span className="text-[11px] text-inksoft">{formatShortDate(goal.targetDate)}</span>}
+                aside={
+                  goal.targetDate ? (
+                    <span className="text-[11px] text-inksoft">{formatShortDate(goal.targetDate)}</span>
+                  ) : null
+                }
               />
               <div className="mt-4 flex items-baseline gap-2">
                 <span className="font-display text-3xl font-bold tracking-tight">

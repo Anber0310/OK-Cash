@@ -13,6 +13,7 @@ const NAV = [
 
 function GoalMiniProgress() {
   const { overview } = useOverview();
+  if (overview.goalsProgress.length === 0) return <div className="mt-auto" />;
   return (
     <div className="mt-auto hidden rounded-2xl glass-soft p-4 md:block">
       <div className="text-[11px] font-semibold uppercase tracking-wider text-inksoft">
@@ -50,12 +51,14 @@ export function AppShell({ children, greeting }: { children: ReactNode; greeting
       <div className="relative mx-auto flex max-w-[1400px]">
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-6 border-r border-white/60 bg-white/40 p-6 backdrop-blur-2xl md:flex">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="grid size-9 place-items-center rounded-xl gradient-brand font-display text-lg font-bold text-white shadow-brand-glow ring-1 ring-white/60">
-              C
+            <div className="grid size-9 place-items-center rounded-xl gradient-brand font-display text-[13px] font-bold text-white shadow-brand-glow ring-1 ring-white/60">
+              OK
             </div>
             <div>
-              <div className="font-display text-[15px] font-bold leading-none tracking-tight">Clarity</div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-inksoft">Decision studio</div>
+              <div className="font-display text-[15px] font-bold leading-none tracking-tight">
+                OK<span className="text-brand"> cash</span>
+              </div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-inksoft">Tus decisiones</div>
             </div>
           </Link>
 
@@ -91,10 +94,12 @@ export function AppShell({ children, greeting }: { children: ReactNode; greeting
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <div className="hidden rounded-full glass px-4 py-2 text-xs font-medium text-inksoft sm:block">
-                <span className="mr-2 inline-block size-1.5 rounded-full bg-mint align-middle" />
-                Datos de demostración
-              </div>
+              <Link
+                to="/configuracion"
+                className="hidden rounded-full glass px-4 py-2 text-xs font-medium text-inksoft transition-colors hover:text-brand sm:block"
+              >
+                Editar mis datos
+              </Link>
               <div className="grid size-10 place-items-center rounded-full gradient-brand font-display text-sm font-bold text-white ring-2 ring-white/70">
                 {snapshot.user.initials}
               </div>

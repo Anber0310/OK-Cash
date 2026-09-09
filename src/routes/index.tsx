@@ -259,7 +259,7 @@ function Dashboard() {
                     ) : null}
                   </div>
                   <div className="text-[11px] text-inksoft">
-                    {event.kind === "payment" ? "Pago" : "Meta"}
+                    {event.kind === "payment" ? "Pago" : event.kind === "income" ? "Ingreso" : "Meta"}
                   </div>
                 </div>
               </div>

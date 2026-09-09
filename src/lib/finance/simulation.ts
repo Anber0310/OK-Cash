@@ -1,6 +1,7 @@
 import {
   DEFAULT_HORIZON_DAYS,
   essentialExpensesForHorizon,
+  expectedIncomeForHorizon,
   safetyFromMargin,
   totalBalance,
   upcomingPayments,
@@ -100,7 +101,7 @@ export function simulate(
   options: SimulationOptions = {},
 ): Scenario {
   const horizonDays = options.horizonDays ?? DEFAULT_HORIZON_DAYS;
-  const income = options.expectedIncome ?? 0;
+  const income = options.expectedIncome ?? expectedIncomeForHorizon(snapshot, horizonDays);
 
   const startingBalance = totalBalance(snapshot);
   const payments = upcomingPayments(snapshot, horizonDays);

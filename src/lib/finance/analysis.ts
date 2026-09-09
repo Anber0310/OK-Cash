@@ -27,6 +27,8 @@ export const PRIORITY_LABEL: Record<PaymentPriority, string> = {
 
 export interface FinancialOverview {
   balance: number;
+  /** Ingresos previstos dentro del horizonte. */
+  expectedIncome: number;
   /** Suma de pagos próximos dentro del horizonte. */
   committed: number;
   /** Gastos necesarios prorrateados al horizonte. */
@@ -60,6 +62,18 @@ export function upcomingPayments(
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 }
 
+export function expectedIncomeForHorizon(
+  snapshot: FinancialSnapshot,
+  horizonDays = DEFAULT_HORIZON_DAYS,
+): number {
+  return snapshot.incomes
+    .filter((i) => {
+      const d = daysUntil(i.date, snapshot.asOf);
+      return d >= 0 && d <= horizonDays;
+    })
+    .reduce((sum, i) => sum + i.amount, 0);
+}
+
 export function essentialExpensesForHorizon(
   snapshot: FinancialSnapshot,
   horizonDays = DEFAULT_HORIZON_DAYS,
@@ -88,10 +102,12 @@ export function buildOverview(
   const committed = payments.reduce((sum, p) => sum + p.amount, 0);
   const essentials = essentialExpensesForHorizon(snapshot, horizonDays);
   const reserve = snapshot.user.minimumReserve;
-  const availableToDecide = Math.max(0, balance - committed - essentials - reserve);
+  const income = expectedIncomeForHorizon(snapshot, horizonDays);
+  const availableToDecide = Math.max(0, balance + income - committed - essentials - reserve);
 
   return {
     balance,
+    expectedIncome: income,
     committed,
     essentialExpenses: essentials,
     reserve,
@@ -169,7 +185,16 @@ export function calendarEvents(snapshot: FinancialSnapshot): CalendarEvent[] {
     priority: null,
   }));
 
-  return [...fromPayments, ...fromGoals].sort(
+  const fromIncomes: CalendarEvent[] = snapshot.incomes.map((i) => ({
+    id: `inc_${i.id}`,
+    date: i.date,
+    title: i.name,
+    amount: i.amount,
+    kind: "income",
+    priority: null,
+  }));
+
+  return [...fromPayments, ...fromGoals, ...fromIncomes].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 }

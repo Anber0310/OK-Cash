@@ -45,7 +45,7 @@ function SimulatorPage() {
     [workingSnapshot, amount],
   );
 
-  const withPurchase = comparison.scenarios[1];
+  const withPurchase = comparison.withAction;
 
   return (
     <AppShell greeting="Simulador de decisiones">

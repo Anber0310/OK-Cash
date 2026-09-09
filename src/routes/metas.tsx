@@ -33,7 +33,7 @@ function GoalsPage() {
     () => compareScenarios(snapshot, { kind: "purchase", label: "Si realizo la compra", amount }),
     [snapshot, amount],
   );
-  const impacts = comparison.scenarios[1].goalImpacts;
+  const impacts = comparison.withAction.goalImpacts;
 
   return (
     <AppShell greeting="Tus metas">
@@ -100,7 +100,7 @@ function GoalsPage() {
           <div className="rounded-2xl glass-soft p-4 sm:w-64">
             <div className="text-[11px] uppercase tracking-wider text-inksoft">Margen que te quedaría</div>
             <div className="mt-1 font-display text-2xl font-bold text-brand">
-              {formatMoney(comparison.scenarios[1].breakdown.marginForSurprises)}
+              {formatMoney(comparison.withAction.breakdown.marginForSurprises)}
             </div>
           </div>
         </div>

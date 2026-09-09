@@ -41,7 +41,7 @@ function ScenarioSummary() {
     [snapshot, input],
   );
 
-  const [current, withPurchase, alternative] = comparison.scenarios;
+  const { current, withAction: withPurchase, alternative } = comparison;
   const marginDrop = current.breakdown.marginForSurprises - withPurchase.breakdown.marginForSurprises;
 
   return (

@@ -69,9 +69,12 @@ export const mockSnapshot: FinancialSnapshot = {
     },
   ],
   expenses: [
-    { id: "e_food", name: "Despensa", monthlyAmount: 1800, essential: true, category: "Despensa" },
+    { id: "e_food", name: "Despensa", monthlyAmount: 1400, essential: true, category: "Despensa" },
     { id: "e_transport", name: "Transporte", monthlyAmount: 600, essential: true, category: "Transporte" },
     { id: "e_streaming", name: "Suscripciones", monthlyAmount: 260, essential: false, category: "Ocio" },
+  ],
+  incomes: [
+    { id: "i_payroll", name: "Nómina", amount: 3400, date: iso(12) },
   ],
   goals: [
     {

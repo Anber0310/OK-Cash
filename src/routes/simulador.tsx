@@ -136,7 +136,6 @@ function SimulatorPage() {
               <div className="mt-3 space-y-2 text-[12px]">
                 {[
                   ["Saldo inicial", withPurchase.breakdown.startingBalance],
-              ["Ingresos previstos", withPurchase.breakdown.expectedIncome],
                   ["Ingresos previstos", withPurchase.breakdown.expectedIncome],
                   ["Dinero utilizado", -withPurchase.breakdown.amountUsed],
                   ["Pagos próximos", -withPurchase.breakdown.upcomingPayments],

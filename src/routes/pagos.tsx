@@ -58,6 +58,11 @@ function PaymentsPage() {
             aside={<span className="text-[11px] text-inksoft">próximos {overview.horizonDays} días</span>}
           />
           <div className="mt-4 space-y-3">
+            {payments.length === 0 ? (
+              <p className="text-[12px] text-inksoft">
+                Todavía no registras pagos. Agrégalos en “Editar mis datos”.
+              </p>
+            ) : null}
             {payments.map((payment, index) => {
               const days = daysUntil(payment.dueDate, snapshot.asOf);
               return (

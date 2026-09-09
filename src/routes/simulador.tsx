@@ -106,9 +106,9 @@ function SimulatorPage() {
               id="reserve"
               type="range"
               min={0}
-              max={3000}
-              step={100}
-              value={reserve}
+              max={Math.max(1000, Math.round(overview.balance))}
+              step={50}
+              value={Math.min(reserve, Math.max(1000, Math.round(overview.balance)))}
               onChange={(e) => setReserve(Number(e.target.value))}
               className="mt-2 w-full accent-brand"
             />

@@ -170,6 +170,9 @@ function Dashboard() {
             }
           />
           <div className="mt-4 space-y-3">
+            {payments.length === 0 ? (
+              <p className="text-[12px] text-inksoft">No tienes pagos próximos registrados.</p>
+            ) : null}
             {payments.map((payment, index) => (
               <div key={payment.id} className="flex items-center gap-3">
                 <div

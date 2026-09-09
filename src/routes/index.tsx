@@ -8,7 +8,7 @@ import { PRIORITY_LABEL, calendarEvents, prioritizePayments, upcomingPayments } 
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
 import { defaultScenarioInput, saveScenarioInput } from "@/lib/finance/scenario-input";
-import type { PaymentPriority } from "@/lib/finance/types";
+import type { PaymentPriority, RiskLevel } from "@/lib/finance/types";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
@@ -30,6 +30,13 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
+const SAFETY_TONE: Record<RiskLevel, { text: string; bar: string }> = {
+  safe: { text: "text-mint", bar: "bg-gradient-to-r from-mint to-accent" },
+  watch: { text: "text-amber", bar: "bg-amber" },
+  tight: { text: "text-amber", bar: "bg-amber" },
+  risky: { text: "text-rose", bar: "bg-rose" },
+};
+
 const PRIORITY_TONE: Record<PaymentPriority, { chip: string; text: string }> = {
   critical: { chip: "bg-rose/15", text: "text-rose" },
   important: { chip: "bg-amber/15", text: "text-amber" },
@@ -48,15 +55,16 @@ function Dashboard() {
   const payments = prioritizePayments(upcomingPayments(snapshot));
   const events = calendarEvents(snapshot).slice(0, 3);
 
-  const committedShare = Math.max(0, Math.min(100, (overview.committed / overview.balance) * 100));
-  const essentialShare = Math.max(0, Math.min(100, (overview.essentialExpenses / overview.balance) * 100));
-  const reserveShare = Math.max(0, Math.min(100, (overview.reserve / overview.balance) * 100));
+  const total = Math.max(1, overview.balance + overview.expectedIncome);
+  const committedShare = Math.max(0, Math.min(100, (overview.committed / total) * 100));
+  const essentialShare = Math.max(0, Math.min(100, (overview.essentialExpenses / total) * 100));
+  const reserveShare = Math.max(0, Math.min(100, (overview.reserve / total) * 100));
   const availableShare = Math.max(0, 100 - committedShare - essentialShare - reserveShare);
 
   return (
     <AppShell>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Metric label="Saldo actual" value={formatMoney(overview.balance)} hint="En tus cuentas hoy" />
+        <Metric label="Saldo actual" value={formatMoney(overview.balance)} hint={`+ ${formatMoney(overview.expectedIncome)} de ingresos previstos`} />
         <Metric
           label="Para gastar"
           value={formatMoney(overview.availableToDecide)}
@@ -70,12 +78,14 @@ function Dashboard() {
         />
         <div className="rounded-2xl glass p-4 lift">
           <div className="text-[11px] font-medium uppercase tracking-wider text-inksoft">Seguridad</div>
-          <div className="mt-1 font-display text-[26px] font-bold tracking-tight text-mint">
+          <div
+            className={`mt-1 font-display text-[26px] font-bold tracking-tight ${SAFETY_TONE[overview.safety.level].text}`}
+          >
             {overview.safety.label}
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink/10">
             <div
-              className="grow-x h-full rounded-full bg-gradient-to-r from-mint to-accent"
+              className={`grow-x h-full rounded-full ${SAFETY_TONE[overview.safety.level].bar}`}
               style={{ width: `${Math.max(8, overview.safety.score)}%` }}
             />
           </div>

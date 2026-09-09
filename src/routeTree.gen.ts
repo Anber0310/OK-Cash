@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as EscenarioRouteImport } from './routes/escenario'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as PagosRouteImport } from './routes/pagos'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const CalendarioRoute = CalendarioRouteImport.update({
   id: '/calendario',
   path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionRoute = ConfiguracionRouteImport.update({
+  id: '/configuracion',
+  path: '/configuracion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EscenarioRoute = EscenarioRouteImport.update({
@@ -50,6 +56,7 @@ const SimuladorRoute = SimuladorRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
+  '/configuracion': typeof ConfiguracionRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
   '/pagos': typeof PagosRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
+  '/configuracion': typeof ConfiguracionRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
   '/pagos': typeof PagosRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
+  '/configuracion': typeof ConfiguracionRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
   '/pagos': typeof PagosRoute
@@ -75,13 +84,27 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/calendario' | '/escenario' | '/metas' | '/pagos' | '/simulador'
+    | '/'
+    | '/calendario'
+    | '/configuracion'
+    | '/escenario'
+    | '/metas'
+    | '/pagos'
+    | '/simulador'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendario' | '/escenario' | '/metas' | '/pagos' | '/simulador'
+  to:
+    | '/'
+    | '/calendario'
+    | '/configuracion'
+    | '/escenario'
+    | '/metas'
+    | '/pagos'
+    | '/simulador'
   id:
     | '__root__'
     | '/'
     | '/calendario'
+    | '/configuracion'
     | '/escenario'
     | '/metas'
     | '/pagos'
@@ -91,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarioRoute: typeof CalendarioRoute
+  ConfiguracionRoute: typeof ConfiguracionRoute
   EscenarioRoute: typeof EscenarioRoute
   MetasRoute: typeof MetasRoute
   PagosRoute: typeof PagosRoute
@@ -111,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/calendario'
       fullPath: '/calendario'
       preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion': {
+      id: '/configuracion'
+      path: '/configuracion'
+      fullPath: '/configuracion'
+      preLoaderRoute: typeof ConfiguracionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/escenario': {
@@ -147,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarioRoute: CalendarioRoute,
+  ConfiguracionRoute: ConfiguracionRoute,
   EscenarioRoute: EscenarioRoute,
   MetasRoute: MetasRoute,
   PagosRoute: PagosRoute,

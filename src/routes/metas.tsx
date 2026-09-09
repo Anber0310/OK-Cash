@@ -1,28 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
 
 export const Route = createFileRoute("/metas")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Tus metas — Clarity" },
+      { title: "Tus metas — OK cash" },
       {
         name: "description",
         content: "Mira el avance de tus metas de ahorro y cómo una decisión de gasto podría afectarlas.",
       },
-      { property: "og:title", content: "Tus metas — Clarity" },
+      { property: "og:title", content: "Tus metas — OK cash" },
       {
         property: "og:description",
         content: "Avance de tus metas y el efecto de cada decisión sobre ellas.",
       },
     ],
   }),
-  component: GoalsPage,
+  component: () => (
+    <SetupGate>
+      <GoalsPage />
+    </SetupGate>
+  ),
 });
 
 function GoalsPage() {

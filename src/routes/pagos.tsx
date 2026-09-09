@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import {
   PRIORITY_LABEL,
   paymentPlanOptions,
@@ -13,23 +14,26 @@ import { daysUntil, formatMoney, formatShortDate } from "@/lib/finance/format";
 import type { PaymentPriority } from "@/lib/finance/types";
 
 export const Route = createFileRoute("/pagos")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Pagos y prioridades — Clarity" },
+      { title: "Pagos y prioridades — OK cash" },
       {
         name: "description",
         content:
           "Ve tus pagos pendientes ordenados por importancia, qué podría esperar y cuánto dinero te quedaría con cada combinación.",
       },
-      { property: "og:title", content: "Pagos y prioridades — Clarity" },
+      { property: "og:title", content: "Pagos y prioridades — OK cash" },
       {
         property: "og:description",
         content: "Orden recomendado de pagos y dinero restante con cada alternativa.",
       },
     ],
   }),
-  component: PaymentsPage,
+  component: () => (
+    <SetupGate>
+      <PaymentsPage />
+    </SetupGate>
+  ),
 });
 
 const TONE: Record<PaymentPriority, string> = {

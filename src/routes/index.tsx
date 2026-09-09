@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, Metric, SectionTitle } from "@/components/ui/GlassCard";
 import { ScenarioGrid } from "@/components/finance/ScenarioCards";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import { PRIORITY_LABEL, calendarEvents, prioritizePayments, upcomingPayments } from "@/lib/finance/analysis";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
@@ -11,23 +12,26 @@ import { defaultScenarioInput, saveScenarioInput } from "@/lib/finance/scenario-
 import type { PaymentPriority, RiskLevel } from "@/lib/finance/types";
 
 export const Route = createFileRoute("/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Clarity — Decide mejor con tu dinero" },
+      { title: "OK cash — Decide mejor con tu dinero" },
       {
         name: "description",
         content:
           "Simula tus decisiones de dinero antes de tomarlas: mira cuánto te quedaría, qué pagos cubrir primero y cuánto margen tendrías.",
       },
-      { property: "og:title", content: "Clarity — Decide mejor con tu dinero" },
+      { property: "og:title", content: "OK cash — Decide mejor con tu dinero" },
       {
         property: "og:description",
         content: "Compara escenarios y entiende las consecuencias de cada decisión financiera.",
       },
     ],
   }),
-  component: Dashboard,
+  component: () => (
+    <SetupGate>
+      <Dashboard />
+    </SetupGate>
+  ),
 });
 
 const SAFETY_TONE: Record<RiskLevel, { text: string; bar: string }> = {

@@ -1,31 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/layout/SetupGate";
 import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
 import { RiskBar, ScenarioGrid } from "@/components/finance/ScenarioCards";
-import { snapshotQueryOptions, useOverview } from "@/hooks/useFinance";
+import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, percent } from "@/lib/finance/format";
 import { defaultScenarioInput, saveScenarioInput } from "@/lib/finance/scenario-input";
 
 export const Route = createFileRoute("/simulador")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(snapshotQueryOptions),
   head: () => ({
     meta: [
-      { title: "Simulador de decisiones — Clarity" },
+      { title: "Simulador de decisiones — OK cash" },
       {
         name: "description",
         content:
           "Plantea una compra y compara tu escenario actual, el escenario con la compra y una alternativa más holgada.",
       },
-      { property: "og:title", content: "Simulador de decisiones — Clarity" },
+      { property: "og:title", content: "Simulador de decisiones — OK cash" },
       {
         property: "og:description",
         content: "¿Qué pasaría si compro esto hoy? Mira el resultado antes de decidir.",
       },
     ],
   }),
-  component: SimulatorPage,
+  component: () => (
+    <SetupGate>
+      <SimulatorPage />
+    </SetupGate>
+  ),
 });
 
 const QUICK_AMOUNTS = [500, 1000, 1500, 2500];

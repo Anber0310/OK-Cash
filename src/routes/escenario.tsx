@@ -25,7 +25,7 @@ export const Route = createFileRoute("/escenario")({
       },
     ],
   }),
-  component: ScenarioSummary;
+  component: ScenarioSummary,
 });
 
 function ScenarioSummary() {

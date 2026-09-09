@@ -143,6 +143,12 @@ export interface Scenario {
 export interface ScenarioComparison {
   action: ProposedAction;
   scenarios: Scenario[];
+  /** Situación de hoy, sin tomar la decisión. */
+  current: Scenario;
+  /** Situación si se realiza la decisión propuesta. */
+  withAction: Scenario;
+  /** Alternativa (esperar o dividir el gasto). */
+  alternative: Scenario;
   /** Escenario con mayor holgura, para señalarlo (no para ordenar al usuario). */
   safestScenarioId: string;
 }

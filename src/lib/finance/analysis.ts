@@ -135,7 +135,10 @@ export function buildOverview(
   const essentials = essentialExpensesForHorizon(snapshot, horizonDays);
   const reserve = snapshot.user.minimumReserve;
   const income = expectedIncomeForHorizon(snapshot, horizonDays);
-  const availableToDecide = Math.max(0, balance + income - committed - essentials - reserve);
+  // "Para gastar" = lo que puede usarse hoy sin que el saldo caiga por debajo de la
+  // reserva en ningún momento del periodo. El dinero futuro no cuenta antes de llegar.
+  const minimumBalance = minimumBalanceForHorizon(snapshot, horizonDays);
+  const availableToDecide = Math.max(0, minimumBalance - reserve);
 
   return {
     balance,

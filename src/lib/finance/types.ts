@@ -101,6 +101,27 @@ export interface FinancialSnapshot {
   asOf: string; // ISO
 }
 
+/* ---------- Línea de tiempo ---------- */
+
+export type TimelineEventType = "income" | "payment" | "purchase" | "expense";
+
+export interface TimelineEvent {
+  id: string;
+  date: string; // ISO
+  type: TimelineEventType;
+  description: string;
+  /** Positivo = entrada de dinero, negativo = salida. */
+  amount: number;
+}
+
+/** Estado del dinero después de todos los movimientos de una fecha. */
+export interface TimelinePoint {
+  date: string; // ISO
+  events: TimelineEvent[];
+  netAmount: number;
+  balanceAfter: number;
+}
+
 /* ---------- Simulación ---------- */
 
 export type ActionKind = "none" | "purchase" | "wait" | "split";

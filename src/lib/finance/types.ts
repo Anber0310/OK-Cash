@@ -134,7 +134,10 @@ export interface ProposedAction {
   delayDays?: number;
   /** Porción que se paga hoy en un escenario dividido. */
   upfrontAmount?: number;
+  /** Fecha del segundo pago en un escenario dividido (ISO). */
+  secondPaymentDate?: string;
 }
+
 
 export type RiskLevel = "safe" | "watch" | "tight" | "risky";
 

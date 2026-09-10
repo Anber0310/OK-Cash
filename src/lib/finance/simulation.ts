@@ -5,7 +5,7 @@ import {
   totalBalance,
   upcomingPayments,
 } from "./analysis";
-import { daysUntil, formatMoney, formatShortDate } from "./format";
+import { daysUntil, formatMoney, formatShortDate, parseDate } from "./format";
 import type {
   FinancialSnapshot,
   GoalImpact,
@@ -141,7 +141,7 @@ function buildTimeline(events: TimelineEvent[], startingBalance: number): Timeli
     else byDate.set(event.date, [event]);
   }
 
-  const dates = [...byDate.keys()].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  const dates = [...byDate.keys()].sort((a, b) => parseDate(a).getTime() - parseDate(b).getTime());
 
   let balance = startingBalance;
   return dates.map((date) => {
@@ -281,7 +281,8 @@ export function simulate(
     essentialExpenses: essentials,
     reserve,
     remaining,
-    marginForSurprises: remaining - reserve,
+    // Margen real durante todo el periodo: usa el punto más bajo, no solo el cierre.
+    marginForSurprises: Math.min(remaining, minimumBalance) - reserve,
     minimumBalance,
     minimumBalanceDate,
     marginAtMinimum: minimumBalance - reserve,

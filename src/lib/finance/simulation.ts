@@ -41,7 +41,7 @@ const DEFAULT_DELAY_DAYS = 15;
 /* ---------- Utilidades de fechas ---------- */
 
 function dayKey(iso: string): string {
-  const d = new Date(iso);
+  const d = parseDate(iso);
   if (Number.isNaN(d.getTime())) return iso.slice(0, 10);
   const y = d.getFullYear();
   const m = `${d.getMonth() + 1}`.padStart(2, "0");
@@ -50,10 +50,10 @@ function dayKey(iso: string): string {
 }
 
 function addDays(iso: string, days: number): string {
-  const d = new Date(iso);
+  const d = parseDate(iso);
   d.setHours(0, 0, 0, 0);
   d.setDate(d.getDate() + days);
-  return dayKey(d.toISOString());
+  return `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, "0")}-${`${d.getDate()}`.padStart(2, "0")}`;
 }
 
 /* ---------- Construcción de la línea de tiempo ---------- */

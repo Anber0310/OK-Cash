@@ -84,6 +84,38 @@ export function essentialExpensesForHorizon(
   return Math.round((monthly / 30) * horizonDays);
 }
 
+/**
+ * Punto más bajo del saldo dentro del horizonte, colocando cada movimiento en su
+ * fecha. Un ingreso futuro no eleva el saldo antes de llegar.
+ */
+export function minimumBalanceForHorizon(
+  snapshot: FinancialSnapshot,
+  horizonDays = DEFAULT_HORIZON_DAYS,
+): number {
+  const moves: { day: number; amount: number }[] = [];
+
+  for (const payment of upcomingPayments(snapshot, horizonDays)) {
+    moves.push({ day: daysUntil(payment.dueDate, snapshot.asOf), amount: -payment.amount });
+  }
+  for (const income of snapshot.incomes) {
+    const day = daysUntil(income.date, snapshot.asOf);
+    if (day < 0 || day > horizonDays) continue;
+    moves.push({ day, amount: income.amount });
+  }
+  const essentials = essentialExpensesForHorizon(snapshot, horizonDays);
+  if (essentials > 0) moves.push({ day: horizonDays, amount: -essentials });
+
+  moves.sort((a, b) => a.day - b.day);
+
+  let balance = totalBalance(snapshot);
+  let minimum = balance;
+  for (const move of moves) {
+    balance += move.amount;
+    if (balance < minimum) minimum = balance;
+  }
+  return minimum;
+}
+
 export function safetyFromMargin(margin: number, reference: number): { level: RiskLevel; score: number; label: string } {
   const ratio = reference > 0 ? margin / reference : margin > 0 ? 1 : 0;
   const score = Math.max(0, Math.min(100, Math.round(ratio * 100)));

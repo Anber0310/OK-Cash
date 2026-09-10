@@ -101,6 +101,27 @@ export interface FinancialSnapshot {
   asOf: string; // ISO
 }
 
+/* ---------- Línea de tiempo ---------- */
+
+export type TimelineEventType = "income" | "payment" | "purchase" | "expense";
+
+export interface TimelineEvent {
+  id: string;
+  date: string; // ISO
+  type: TimelineEventType;
+  description: string;
+  /** Positivo = entrada de dinero, negativo = salida. */
+  amount: number;
+}
+
+/** Estado del dinero después de todos los movimientos de una fecha. */
+export interface TimelinePoint {
+  date: string; // ISO
+  events: TimelineEvent[];
+  netAmount: number;
+  balanceAfter: number;
+}
+
 /* ---------- Simulación ---------- */
 
 export type ActionKind = "none" | "purchase" | "wait" | "split";
@@ -113,7 +134,10 @@ export interface ProposedAction {
   delayDays?: number;
   /** Porción que se paga hoy en un escenario dividido. */
   upfrontAmount?: number;
+  /** Fecha del segundo pago en un escenario dividido (ISO). */
+  secondPaymentDate?: string;
 }
+
 
 export type RiskLevel = "safe" | "watch" | "tight" | "risky";
 
@@ -133,8 +157,14 @@ export interface ScenarioBreakdown {
   upcomingPayments: number;
   essentialExpenses: number;
   reserve: number;
+  /** Saldo al final del horizonte. */
   remaining: number;
   marginForSurprises: number;
+  /** Punto más bajo de la línea de tiempo. */
+  minimumBalance: number;
+  minimumBalanceDate: string | null;
+  /** Margen del punto más bajo respecto a la reserva. */
+  marginAtMinimum: number;
 }
 
 export interface Scenario {
@@ -149,6 +179,8 @@ export interface Scenario {
   goalImpacts: GoalImpact[];
   /** Explicación en lenguaje humano de lo que pasaría. */
   explanation: string;
+  /** Recorrido del dinero fecha por fecha. */
+  timeline: TimelinePoint[];
 }
 
 export interface ScenarioComparison {

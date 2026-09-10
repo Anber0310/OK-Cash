@@ -157,8 +157,14 @@ export interface ScenarioBreakdown {
   upcomingPayments: number;
   essentialExpenses: number;
   reserve: number;
+  /** Saldo al final del horizonte. */
   remaining: number;
   marginForSurprises: number;
+  /** Punto más bajo de la línea de tiempo. */
+  minimumBalance: number;
+  minimumBalanceDate: string | null;
+  /** Margen del punto más bajo respecto a la reserva. */
+  marginAtMinimum: number;
 }
 
 export interface Scenario {
@@ -173,6 +179,8 @@ export interface Scenario {
   goalImpacts: GoalImpact[];
   /** Explicación en lenguaje humano de lo que pasaría. */
   explanation: string;
+  /** Recorrido del dinero fecha por fecha. */
+  timeline: TimelinePoint[];
 }
 
 export interface ScenarioComparison {

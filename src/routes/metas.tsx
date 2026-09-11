@@ -6,6 +6,15 @@ import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
 import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
+import { describeGoalDecisionImpact, type GoalImpactLevel } from "@/lib/finance/goal-impact";
+import { withdrawFromGoal } from "@/lib/finance/user-data";
+
+const IMPACT_TITLE: Record<GoalImpactLevel, string> = {
+  none: "No afecta esta meta",
+  reduces: "Reduce tu capacidad de ahorro",
+  delays: "Podría retrasar esta meta",
+  usesSetAside: "Necesitaría dinero de esta meta",
+};
 
 export const Route = createFileRoute("/metas")({
   head: () => ({
@@ -33,11 +42,20 @@ function GoalsPage() {
   const { snapshot, overview } = useOverview();
   const [amount, setAmount] = useState(1500);
 
+  const [withdrawals, setWithdrawals] = useState<Record<string, string>>({});
+
   const comparison = useMemo(
     () => compareScenarios(snapshot, { kind: "purchase", label: "Si realizo la compra", amount }),
     [snapshot, amount],
   );
-  const impacts = comparison.withAction.goalImpacts;
+
+  // Solo esta acción explícita modifica los datos reales: la simulación nunca lo hace.
+  const dispose = (goalId: string) => {
+    const value = Number(withdrawals[goalId]);
+    if (!(value > 0)) return;
+    withdrawFromGoal(goalId, value);
+    setWithdrawals({ ...withdrawals, [goalId]: "" });
+  };
 
   if (snapshot.goals.length === 0) {
     return (

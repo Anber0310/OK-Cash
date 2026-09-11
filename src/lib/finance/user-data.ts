@@ -43,18 +43,33 @@ export interface UserGoalInput {
   targetDate: string | null;
 }
 
+/**
+ * Registro de una disposición de dinero apartado en una meta hacia el dinero
+ * disponible. Sirve para que el movimiento quede trazado y no parezca dinero
+ * creado de la nada.
+ */
+export interface GoalWithdrawal {
+  id: string;
+  goalId: string;
+  goalName: string;
+  amount: number;
+  date: string; // ISO
+}
+
 export interface UserFinancialData {
   version: 1;
   createdAt: string;
   name: string;
   currency: Currency;
-  /** Dinero disponible hoy. */
+  /** Dinero disponible hoy. No incluye el dinero apartado en metas. */
   availableMoney: number;
   /** Reserva definida por la persona. */
   reserve: number;
   incomes: UserIncomeInput[];
   payments: UserPaymentInput[];
   goals: UserGoalInput[];
+  /** Historial de disposiciones desde el apartado de una meta. */
+  goalWithdrawals?: GoalWithdrawal[];
 }
 
 const STORAGE_KEY = "okcash.userData.v1";
@@ -74,7 +89,13 @@ export function emptyUserData(): UserFinancialData {
     incomes: [],
     payments: [],
     goals: [],
+    goalWithdrawals: [],
   };
+}
+
+/** Dinero apartado en metas. Es un apartado aparte del dinero disponible. */
+export function totalSetAsideInGoals(data: UserFinancialData): number {
+  return data.goals.reduce((sum, g) => sum + Math.max(0, g.savedAmount), 0);
 }
 
 function initialsFrom(name: string): string {

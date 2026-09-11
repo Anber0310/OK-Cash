@@ -71,7 +71,7 @@ export function describeGoalDecisionImpact({
     return {
       level: "reduces",
       progress,
-      message: `No toca los ${formatMoney(setAside)} apartados, pero reduce la capacidad que te queda para completar esta meta.${tail}`;
+      message: `No toca los ${formatMoney(setAside)} apartados, pero reduce la capacidad que te queda para completar esta meta.${tail}`,
     };
   }
 

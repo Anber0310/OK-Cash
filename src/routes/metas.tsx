@@ -121,13 +121,47 @@ function GoalsPage() {
               </div>
               <div className="mt-2 flex justify-between text-[11px] text-inksoft">
                 <span>{percent(progress)} logrado</span>
-                <span>Aportas {formatMoney(goal.monthlyContribution)} al mes</span>
+                {goal.monthlyContribution > 0 ? (
+                  <span>Apartas {formatMoney(goal.monthlyContribution)} cada periodo</span>
+                ) : (
+                  <span>Sin aportación periódica registrada</span>
+                )}
               </div>
-              {impact ? (
-                <div className="mt-4 rounded-xl bg-ink/5 p-3 text-[11px] leading-relaxed text-inksoft">
-                  {impact.monthsDelayed > 0
-                    ? `Si gastas ${formatMoney(amount)} hoy, esta meta avanzaría unos ${impact.monthsDelayed} meses más despacio.`
-                    : `Gastar ${formatMoney(amount)} hoy no afectaría el avance de esta meta.`}
+
+              <div className="mt-4 rounded-xl bg-ink/5 p-3 text-[11px] leading-relaxed text-inksoft">
+                <span className="font-semibold text-ink">
+                  {IMPACT_TITLE[impact.level]} ({formatMoney(amount)})
+                </span>
+                <br />
+                {impact.message}
+              </div>
+
+              {goal.savedAmount > 0 ? (
+                <div className="mt-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-inksoft">
+                    Disponer de dinero de esta meta
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      max={goal.savedAmount}
+                      placeholder="Cantidad"
+                      value={withdrawals[goal.id] ?? ""}
+                      onChange={(e) => setWithdrawals({ ...withdrawals, [goal.id]: e.target.value })}
+                      className="w-full rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-sm outline-none focus:border-brand/60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => dispose(goal.id)}
+                      className="shrink-0 rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-sm font-semibold text-brand hover:bg-white"
+                    >
+                      Disponer
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-inksoft">
+                    El dinero pasa del apartado de la meta a tu dinero disponible.
+                  </p>
                 </div>
               ) : null}
             </GlassCard>

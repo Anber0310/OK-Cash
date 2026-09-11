@@ -60,10 +60,46 @@ function GoalsPage() {
 
   return (
     <AppShell greeting="Tus metas">
+      <GlassCard className="mb-4">
+        <SectionTitle
+          title="Dinero apartado en metas"
+          aside={
+            <Link to="/mis-datos" className="text-[11px] font-medium text-inksoft hover:text-brand">
+              editar mis metas
+            </Link>
+          }
+        />
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-inksoft">Disponible</div>
+            <div className="font-display text-2xl font-bold">{formatMoney(overview.balance)}</div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-inksoft">Apartado en metas</div>
+            <div className="font-display text-2xl font-bold text-brand">
+              {formatMoney(overview.goalsSetAside)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-inksoft">Total registrado</div>
+            <div className="font-display text-2xl font-bold">{formatMoney(overview.totalRegistered)}</div>
+          </div>
+        </div>
+        <p className="mt-3 text-[11px] leading-relaxed text-inksoft">
+          El dinero apartado en tus metas no se resta de tu dinero disponible: son dos bolsas distintas. Si
+          necesitas usar parte de una meta, puedes disponer de ella desde su tarjeta.
+        </p>
+      </GlassCard>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {snapshot.goals.map((goal) => {
           const progress = goal.targetAmount > 0 ? Math.min(1, goal.savedAmount / goal.targetAmount) : 0;
-          const impact = impacts.find((i) => i.goalId === goal.id);
+          const impact = describeGoalDecisionImpact({
+            goal,
+            amountUsed: amount,
+            availableToDecide: overview.availableToDecide,
+            marginAtMinimum: comparison.withAction.breakdown.marginAtMinimum,
+          });
           return (
             <GlassCard key={goal.id} interactive>
               <SectionTitle

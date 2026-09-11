@@ -72,7 +72,7 @@ function Dashboard() {
         <Metric
           label="Para gastar"
           value={formatMoney(overview.availableToDecide)}
-          hint="Tras compromisos y reserva"
+          hint="Sin tocar tu reserva ni el dinero apartado en metas"
           tone="brand"
         />
         <Metric
@@ -202,6 +202,12 @@ function Dashboard() {
                 {formatMoney(overview.availableToDecide)}
               </div>
               <div className="text-[11px] text-inksoft">disponible razonable</div>
+              {overview.goalsSetAside > 0 ? (
+                <div className="mt-1 text-[11px] text-inksoft">
+                  Aparte tienes {formatMoney(overview.goalsSetAside)} apartados en metas ·{" "}
+                  {formatMoney(overview.totalRegistered)} registrados en total
+                </div>
+              ) : null}
             </div>
             <div className="text-right">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-inksoft">Próxima fecha</div>

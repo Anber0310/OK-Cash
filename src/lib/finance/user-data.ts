@@ -43,18 +43,33 @@ export interface UserGoalInput {
   targetDate: string | null;
 }
 
+/**
+ * Registro de una disposición de dinero apartado en una meta hacia el dinero
+ * disponible. Sirve para que el movimiento quede trazado y no parezca dinero
+ * creado de la nada.
+ */
+export interface GoalWithdrawal {
+  id: string;
+  goalId: string;
+  goalName: string;
+  amount: number;
+  date: string; // ISO
+}
+
 export interface UserFinancialData {
   version: 1;
   createdAt: string;
   name: string;
   currency: Currency;
-  /** Dinero disponible hoy. */
+  /** Dinero disponible hoy. No incluye el dinero apartado en metas. */
   availableMoney: number;
   /** Reserva definida por la persona. */
   reserve: number;
   incomes: UserIncomeInput[];
   payments: UserPaymentInput[];
   goals: UserGoalInput[];
+  /** Historial de disposiciones desde el apartado de una meta. */
+  goalWithdrawals?: GoalWithdrawal[];
 }
 
 const STORAGE_KEY = "okcash.userData.v1";
@@ -74,7 +89,13 @@ export function emptyUserData(): UserFinancialData {
     incomes: [],
     payments: [],
     goals: [],
+    goalWithdrawals: [],
   };
+}
+
+/** Dinero apartado en metas. Es un apartado aparte del dinero disponible. */
+export function totalSetAsideInGoals(data: UserFinancialData): number {
+  return data.goals.reduce((sum, g) => sum + Math.max(0, g.savedAmount), 0);
 }
 
 function initialsFrom(name: string): string {
@@ -161,7 +182,14 @@ function read(): UserFinancialData | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as UserFinancialData;
     if (!parsed || parsed.version !== 1) return null;
-    return parsed;
+    // Normalizamos listas ausentes de versiones anteriores del guardado.
+    return {
+      ...parsed,
+      incomes: parsed.incomes ?? [],
+      payments: parsed.payments ?? [],
+      goals: parsed.goals ?? [],
+      goalWithdrawals: parsed.goalWithdrawals ?? [],
+    };
   } catch {
     return null;
   }
@@ -195,4 +223,48 @@ export function clearUserData(): void {
 export function subscribeUserData(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+/**
+ * Actualiza solo las partes indicadas de los datos guardados.
+ * Permite editar un dato sin volver a capturar todos los demás.
+ */
+export function updateUserData(patch: Partial<UserFinancialData>): UserFinancialData | null {
+  const current = getUserData();
+  if (!current) return null;
+  const next: UserFinancialData = { ...current, ...patch };
+  saveUserData(next);
+  return next;
+}
+
+/**
+ * Mueve dinero del apartado de una meta al dinero disponible.
+ * No crea dinero: baja el apartado exactamente lo mismo que sube el disponible
+ * y deja registro del movimiento.
+ */
+export function withdrawFromGoal(goalId: string, amount: number): UserFinancialData | null {
+  const current = getUserData();
+  if (!current) return null;
+  const goal = current.goals.find((g) => g.id === goalId);
+  if (!goal) return null;
+
+  const moved = Math.min(Math.max(0, Math.round(amount)), Math.max(0, goal.savedAmount));
+  if (moved <= 0) return current;
+
+  const withdrawal: GoalWithdrawal = {
+    id: makeId("wdr"),
+    goalId: goal.id,
+    goalName: goal.name,
+    amount: moved,
+    date: new Date().toISOString(),
+  };
+
+  const next: UserFinancialData = {
+    ...current,
+    availableMoney: current.availableMoney + moved,
+    goals: current.goals.map((g) => (g.id === goalId ? { ...g, savedAmount: g.savedAmount - moved } : g)),
+    goalWithdrawals: [...(current.goalWithdrawals ?? []), withdrawal],
+  };
+  saveUserData(next);
+  return next;
 }

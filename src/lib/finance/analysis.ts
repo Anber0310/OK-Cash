@@ -36,6 +36,10 @@ export interface FinancialOverview {
   reserve: number;
   /** Dinero que puede usarse razonablemente para una decisión. */
   availableToDecide: number;
+  /** Dinero apartado en metas. Es un apartado separado del dinero disponible. */
+  goalsSetAside: number;
+  /** Dinero disponible + dinero apartado en metas. */
+  totalRegistered: number;
   safety: { level: RiskLevel; score: number; label: string };
   nextPayment: Payment | null;
   goalsProgress: { id: string; name: string; progress: number }[];
@@ -139,6 +143,9 @@ export function buildOverview(
   // reserva en ningún momento del periodo. El dinero futuro no cuenta antes de llegar.
   const minimumBalance = minimumBalanceForHorizon(snapshot, horizonDays);
   const availableToDecide = Math.max(0, minimumBalance - reserve);
+  // El dinero apartado en metas no forma parte del saldo disponible ni se resta
+  // de él: se informa aparte.
+  const goalsSetAside = snapshot.goals.reduce((sum, g) => sum + Math.max(0, g.savedAmount), 0);
 
   return {
     balance,
@@ -147,6 +154,8 @@ export function buildOverview(
     essentialExpenses: essentials,
     reserve,
     availableToDecide,
+    goalsSetAside,
+    totalRegistered: balance + goalsSetAside,
     safety: safetyFromMargin(availableToDecide, Math.max(1, committed + essentials)),
     nextPayment: payments[0] ?? null,
     goalsProgress: snapshot.goals.map((g) => ({

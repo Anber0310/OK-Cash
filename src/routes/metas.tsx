@@ -6,6 +6,15 @@ import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
 import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
 import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
+import { describeGoalDecisionImpact, type GoalImpactLevel } from "@/lib/finance/goal-impact";
+import { withdrawFromGoal } from "@/lib/finance/user-data";
+
+const IMPACT_TITLE: Record<GoalImpactLevel, string> = {
+  none: "No afecta esta meta",
+  reduces: "Reduce tu capacidad de ahorro",
+  delays: "Podría retrasar esta meta",
+  usesSetAside: "Necesitaría dinero de esta meta",
+};
 
 export const Route = createFileRoute("/metas")({
   head: () => ({
@@ -33,11 +42,20 @@ function GoalsPage() {
   const { snapshot, overview } = useOverview();
   const [amount, setAmount] = useState(1500);
 
+  const [withdrawals, setWithdrawals] = useState<Record<string, string>>({});
+
   const comparison = useMemo(
     () => compareScenarios(snapshot, { kind: "purchase", label: "Si realizo la compra", amount }),
     [snapshot, amount],
   );
-  const impacts = comparison.withAction.goalImpacts;
+
+  // Solo esta acción explícita modifica los datos reales: la simulación nunca lo hace.
+  const dispose = (goalId: string) => {
+    const value = Number(withdrawals[goalId]);
+    if (!(value > 0)) return;
+    withdrawFromGoal(goalId, value);
+    setWithdrawals({ ...withdrawals, [goalId]: "" });
+  };
 
   if (snapshot.goals.length === 0) {
     return (
@@ -60,10 +78,46 @@ function GoalsPage() {
 
   return (
     <AppShell greeting="Tus metas">
+      <GlassCard className="mb-4">
+        <SectionTitle
+          title="Dinero apartado en metas"
+          aside={
+            <Link to="/mis-datos" className="text-[11px] font-medium text-inksoft hover:text-brand">
+              editar mis metas
+            </Link>
+          }
+        />
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-inksoft">Disponible</div>
+            <div className="font-display text-2xl font-bold">{formatMoney(overview.balance)}</div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-inksoft">Apartado en metas</div>
+            <div className="font-display text-2xl font-bold text-brand">
+              {formatMoney(overview.goalsSetAside)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-inksoft">Total registrado</div>
+            <div className="font-display text-2xl font-bold">{formatMoney(overview.totalRegistered)}</div>
+          </div>
+        </div>
+        <p className="mt-3 text-[11px] leading-relaxed text-inksoft">
+          El dinero apartado en tus metas no se resta de tu dinero disponible: son dos bolsas distintas. Si
+          necesitas usar parte de una meta, puedes disponer de ella desde su tarjeta.
+        </p>
+      </GlassCard>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {snapshot.goals.map((goal) => {
           const progress = goal.targetAmount > 0 ? Math.min(1, goal.savedAmount / goal.targetAmount) : 0;
-          const impact = impacts.find((i) => i.goalId === goal.id);
+          const impact = describeGoalDecisionImpact({
+            goal,
+            amountUsed: amount,
+            availableToDecide: overview.availableToDecide,
+            marginAtMinimum: comparison.withAction.breakdown.marginAtMinimum,
+          });
           return (
             <GlassCard key={goal.id} interactive>
               <SectionTitle
@@ -85,13 +139,47 @@ function GoalsPage() {
               </div>
               <div className="mt-2 flex justify-between text-[11px] text-inksoft">
                 <span>{percent(progress)} logrado</span>
-                <span>Aportas {formatMoney(goal.monthlyContribution)} al mes</span>
+                {goal.monthlyContribution > 0 ? (
+                  <span>Apartas {formatMoney(goal.monthlyContribution)} cada periodo</span>
+                ) : (
+                  <span>Sin aportación periódica registrada</span>
+                )}
               </div>
-              {impact ? (
-                <div className="mt-4 rounded-xl bg-ink/5 p-3 text-[11px] leading-relaxed text-inksoft">
-                  {impact.monthsDelayed > 0
-                    ? `Si gastas ${formatMoney(amount)} hoy, esta meta avanzaría unos ${impact.monthsDelayed} meses más despacio.`
-                    : `Gastar ${formatMoney(amount)} hoy no afectaría el avance de esta meta.`}
+
+              <div className="mt-4 rounded-xl bg-ink/5 p-3 text-[11px] leading-relaxed text-inksoft">
+                <span className="font-semibold text-ink">
+                  {IMPACT_TITLE[impact.level]} ({formatMoney(amount)})
+                </span>
+                <br />
+                {impact.message}
+              </div>
+
+              {goal.savedAmount > 0 ? (
+                <div className="mt-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-inksoft">
+                    Disponer de dinero de esta meta
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      max={goal.savedAmount}
+                      placeholder="Cantidad"
+                      value={withdrawals[goal.id] ?? ""}
+                      onChange={(e) => setWithdrawals({ ...withdrawals, [goal.id]: e.target.value })}
+                      className="w-full rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-sm outline-none focus:border-brand/60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => dispose(goal.id)}
+                      className="shrink-0 rounded-xl border border-white/70 bg-white/70 px-3 py-2 text-sm font-semibold text-brand hover:bg-white"
+                    >
+                      Disponer
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-inksoft">
+                    El dinero pasa del apartado de la meta a tu dinero disponible.
+                  </p>
                 </div>
               ) : null}
             </GlassCard>

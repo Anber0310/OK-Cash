@@ -14,6 +14,7 @@ import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as EscenarioRouteImport } from './routes/escenario'
 import { Route as MetasRouteImport } from './routes/metas'
+import { Route as MisDatosRouteImport } from './routes/mis-datos'
 import { Route as PagosRouteImport } from './routes/pagos'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 
@@ -42,6 +43,11 @@ const MetasRoute = MetasRouteImport.update({
   path: '/metas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MisDatosRoute = MisDatosRouteImport.update({
+  id: '/mis-datos',
+  path: '/mis-datos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PagosRoute = PagosRouteImport.update({
   id: '/pagos',
   path: '/pagos',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/configuracion': typeof ConfiguracionRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
+  '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
   '/simulador': typeof SimuladorRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/configuracion': typeof ConfiguracionRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
+  '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
   '/simulador': typeof SimuladorRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/configuracion': typeof ConfiguracionRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
+  '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
   '/simulador': typeof SimuladorRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/escenario'
     | '/metas'
+    | '/mis-datos'
     | '/pagos'
     | '/simulador'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/escenario'
     | '/metas'
+    | '/mis-datos'
     | '/pagos'
     | '/simulador'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/escenario'
     | '/metas'
+    | '/mis-datos'
     | '/pagos'
     | '/simulador'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   ConfiguracionRoute: typeof ConfiguracionRoute
   EscenarioRoute: typeof EscenarioRoute
   MetasRoute: typeof MetasRoute
+  MisDatosRoute: typeof MisDatosRoute
   PagosRoute: typeof PagosRoute
   SimuladorRoute: typeof SimuladorRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MetasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mis-datos': {
+      id: '/mis-datos'
+      path: '/mis-datos'
+      fullPath: '/mis-datos'
+      preLoaderRoute: typeof MisDatosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pagos': {
       id: '/pagos'
       path: '/pagos'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracionRoute: ConfiguracionRoute,
   EscenarioRoute: EscenarioRoute,
   MetasRoute: MetasRoute,
+  MisDatosRoute: MisDatosRoute,
   PagosRoute: PagosRoute,
   SimuladorRoute: SimuladorRoute,
 }

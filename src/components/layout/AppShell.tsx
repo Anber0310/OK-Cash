@@ -95,7 +95,7 @@ export function AppShell({ children, greeting }: { children: ReactNode; greeting
             </div>
             <div className="flex items-center gap-3">
               <Link
-                to="/configuracion"
+                to="/mis-datos"
                 className="hidden rounded-full glass px-4 py-2 text-xs font-medium text-inksoft transition-colors hover:text-brand sm:block"
               >
                 Editar mis datos

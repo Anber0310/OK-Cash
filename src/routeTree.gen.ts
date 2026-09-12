@@ -17,6 +17,7 @@ import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MisDatosRouteImport } from './routes/mis-datos'
 import { Route as PagosRouteImport } from './routes/pagos'
 import { Route as SimuladorRouteImport } from './routes/simulador'
+import { Route as TransaccionesRouteImport } from './routes/transacciones'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const SimuladorRoute = SimuladorRouteImport.update({
   path: '/simulador',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TransaccionesRoute = TransaccionesRouteImport.update({
+  id: '/transacciones',
+  path: '/transacciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
   '/simulador': typeof SimuladorRoute
+  '/transacciones': typeof TransaccionesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
   '/simulador': typeof SimuladorRoute
+  '/transacciones': typeof TransaccionesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
   '/simulador': typeof SimuladorRoute
+  '/transacciones': typeof TransaccionesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/mis-datos'
     | '/pagos'
     | '/simulador'
+    | '/transacciones'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/mis-datos'
     | '/pagos'
     | '/simulador'
+    | '/transacciones'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/mis-datos'
     | '/pagos'
     | '/simulador'
+    | '/transacciones'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   MisDatosRoute: typeof MisDatosRoute
   PagosRoute: typeof PagosRoute
   SimuladorRoute: typeof SimuladorRoute
+  TransaccionesRoute: typeof TransaccionesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SimuladorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/transacciones': {
+      id: '/transacciones'
+      path: '/transacciones'
+      fullPath: '/transacciones'
+      preLoaderRoute: typeof TransaccionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   MisDatosRoute: MisDatosRoute,
   PagosRoute: PagosRoute,
   SimuladorRoute: SimuladorRoute,
+  TransaccionesRoute: TransaccionesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

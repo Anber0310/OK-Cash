@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { formatMoney } from "@/lib/finance/format";
+import { formatMoney, formatShortDate } from "@/lib/finance/format";
 import type { RiskLevel, Scenario, ScenarioComparison } from "@/lib/finance/types";
 
 export const RISK_LABEL: Record<RiskLevel, string> = {
@@ -49,6 +49,10 @@ function Row({ label, value, tone }: { label: string; value: string; tone?: stri
   );
 }
 
+function lowestLabel(date: string | null): string {
+  return date ? `Punto más bajo (${formatShortDate(date)})` : "Punto más bajo";
+}
+
 export function ScenarioCard({
   scenario,
   highlighted,
@@ -68,8 +72,9 @@ export function ScenarioCard({
         <div className="text-[11px] text-white/80">te quedarían</div>
         <div className="mt-3 space-y-2">
           <Row label="Dinero utilizado" value={formatMoney(b.amountUsed)} />
+          <Row label={lowestLabel(b.minimumBalanceDate)} value={formatMoney(b.minimumBalance)} />
           <Row label="Reserva" value={formatMoney(b.reserve)} />
-          <Row label="Margen imprevistos" value={formatMoney(b.marginForSurprises)} />
+          <Row label="Margen sobre la reserva" value={formatMoney(b.marginAtMinimum)} />
         </div>
         <div className="mt-3 rounded-lg bg-white/15 px-2.5 py-1.5 text-[10px] font-medium leading-tight">
           {scenario.explanation}
@@ -94,11 +99,12 @@ export function ScenarioCard({
       <div className="text-[11px] text-inksoft">te quedarían</div>
       <div className="mt-3 space-y-2 text-inksoft">
         <Row label="Dinero utilizado" value={formatMoney(b.amountUsed)} tone="text-ink" />
+        <Row label={lowestLabel(b.minimumBalanceDate)} value={formatMoney(b.minimumBalance)} tone="text-ink" />
         <Row label="Reserva" value={formatMoney(b.reserve)} tone="text-ink" />
         <Row
-          label="Margen imprevistos"
-          value={formatMoney(b.marginForSurprises)}
-          tone={b.marginForSurprises < 0 ? "text-rose" : "text-mint"}
+          label="Margen sobre la reserva"
+          value={formatMoney(b.marginAtMinimum)}
+          tone={b.marginAtMinimum < 0 ? "text-rose" : "text-mint"}
         />
       </div>
       <div className="mt-3 rounded-lg bg-ink/5 px-2.5 py-1.5 text-[10px] font-medium leading-tight text-inksoft">

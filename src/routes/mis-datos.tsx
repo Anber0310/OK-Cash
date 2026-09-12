@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { SetupGate } from "@/components/layout/SetupGate";
@@ -7,6 +7,7 @@ import { PRIORITY_LABEL } from "@/lib/finance/analysis";
 import { formatMoney, formatShortDate, parseDate } from "@/lib/finance/format";
 import { useUserData } from "@/hooks/useFinance";
 import {
+  clearUserData,
   makeId,
   updateUserData,
   withdrawFromGoal,
@@ -58,6 +59,7 @@ const SECTIONS = [
   { id: "incomes", label: "Ingresos" },
   { id: "payments", label: "Pagos" },
   { id: "goals", label: "Metas" },
+  { id: "reset", label: "Reiniciar datos" },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]["id"];
@@ -128,12 +130,50 @@ function DataEditor() {
       {section === "goals" ? (
         <GoalsSection data={data} onSave={save} saved={savedAt === "goals"} />
       ) : null}
+      {section === "reset" ? <ResetSection /> : null}
 
       <p className="mt-5 text-[11px] text-inksoft">
         Todo lo que cambies aquí se refleja de inmediato en el Dashboard, el Simulador, Pagos, Metas y el
         Calendario.
       </p>
     </AppShell>
+  );
+}
+
+/* ---------- Reinicio de los datos de la demo ---------- */
+
+function ResetSection() {
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+
+  const reset = () => {
+    // Borra únicamente los datos guardados de esta persona en el dispositivo.
+    clearUserData();
+    navigate({ to: "/configuracion" });
+  };
+
+  return (
+    <GlassCard>
+      <SectionTitle title="Volver a empezar" />
+      <p className="mt-3 text-sm leading-relaxed text-inksoft">
+        Borra los datos guardados en este dispositivo y te lleva otra vez a la configuración inicial, para poder
+        repetir el recorrido completo desde cero. No afecta nada más de la aplicación.
+      </p>
+      {confirming ? (
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button type="button" onClick={reset} className={primaryBtn}>
+            Sí, borrar mis datos y empezar de nuevo
+          </button>
+          <button type="button" onClick={() => setConfirming(false)} className={softBtn}>
+            Cancelar
+          </button>
+        </div>
+      ) : (
+        <button type="button" onClick={() => setConfirming(true)} className={`mt-5 ${softBtn}`}>
+          Reiniciar mis datos
+        </button>
+      )}
+    </GlassCard>
   );
 }
 

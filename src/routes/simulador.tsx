@@ -6,10 +6,8 @@ import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
 import { RiskBar, ScenarioGrid } from "@/components/finance/ScenarioCards";
 import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
-import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
+import { formatMoney, percent } from "@/lib/finance/format";
 import { defaultScenarioInput, saveScenarioInput } from "@/lib/finance/scenario-input";
-import { describeGoalDecisionImpact } from "@/lib/finance/goal-impact";
-import { buildDecisionReason } from "@/lib/finance/decision-reason";
 
 export const Route = createFileRoute("/simulador")({
   head: () => ({
@@ -52,7 +50,6 @@ function SimulatorPage() {
   );
 
   const withPurchase = comparison.withAction;
-  const reason = buildDecisionReason(workingSnapshot, withPurchase);
 
   return (
     <AppShell greeting="Simulador de decisiones">
@@ -158,24 +155,11 @@ function SimulatorPage() {
                   </div>
                 ))}
                 <div className="flex justify-between border-t border-white/70 pt-2">
-                  <span className="text-inksoft">
-                    Punto más bajo
-                    {withPurchase.breakdown.minimumBalanceDate
-                      ? ` · ${formatShortDate(withPurchase.breakdown.minimumBalanceDate)}`
-                      : ""}
-                  </span>
+                  <span className="text-inksoft">Margen para imprevistos</span>
                   <span
-                    className={`font-display font-bold ${withPurchase.breakdown.marginAtMinimum < 0 ? "text-rose" : "text-mint"}`}
+                    className={`font-display font-bold ${withPurchase.breakdown.marginForSurprises < 0 ? "text-rose" : "text-mint"}`}
                   >
-                    {formatMoney(withPurchase.breakdown.minimumBalance)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-inksoft">Margen sobre la reserva</span>
-                  <span
-                    className={`font-display font-bold ${withPurchase.breakdown.marginAtMinimum < 0 ? "text-rose" : "text-mint"}`}
-                  >
-                    {formatMoney(withPurchase.breakdown.marginAtMinimum)}
+                    {formatMoney(withPurchase.breakdown.marginForSurprises)}
                   </span>
                 </div>
               </div>
@@ -183,49 +167,37 @@ function SimulatorPage() {
             </div>
 
             <div className="rounded-2xl glass-soft p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-inksoft">Por qué</div>
-              <p className="mt-2 font-display text-sm font-bold">{reason.headline}</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-inksoft">{reason.detail}</p>
-
-              <div className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-inksoft">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-inksoft">
                 Impacto en tus metas
               </div>
-              <div className="mt-2 space-y-3">
-                {workingSnapshot.goals.length === 0 ? (
-                  <p className="text-[11px] text-inksoft">
-                    No registras metas, así que no estimamos un efecto sobre ellas.
-                  </p>
-                ) : null}
-                {workingSnapshot.goals.map((goal) => {
-                  const impact = describeGoalDecisionImpact({
-                    goal,
-                    amountUsed: withPurchase.breakdown.amountUsed,
-                    availableToDecide: overview.availableToDecide,
-                    marginAtMinimum: withPurchase.breakdown.marginAtMinimum,
-                  });
-                  return (
-                    <div key={goal.id}>
-                      <div className="flex justify-between text-[12px]">
-                        <span className="font-semibold">{goal.name}</span>
-                        <span className="text-inksoft">{percent(impact.progress)}</span>
-                      </div>
-                      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink/10">
-                        <div
-                          className="grow-x h-full rounded-full gradient-brand"
-                          style={{ width: percent(impact.progress) }}
-                        />
-                      </div>
-                      <p className="mt-1 text-[11px] leading-relaxed text-inksoft">{impact.message}</p>
+              <div className="mt-3 space-y-3">
+                {withPurchase.goalImpacts.map((impact) => (
+                  <div key={impact.goalId}>
+                    <div className="flex justify-between text-[12px]">
+                      <span className="font-semibold">{impact.goalName}</span>
+                      <span className="text-inksoft">
+                        {percent(impact.progressBefore)} → {percent(impact.progressAfter)}
+                      </span>
                     </div>
-                  );
-                })}
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink/10">
+                      <div
+                        className="grow-x h-full rounded-full gradient-brand"
+                        style={{ width: percent(impact.progressAfter) }}
+                      />
+                    </div>
+                    <div className="mt-1 text-[11px] text-inksoft">
+                      {impact.monthsDelayed > 0
+                        ? `Avanzaría unos ${impact.monthsDelayed} meses más despacio.`
+                        : "Esta decisión no afectaría su avance."}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
           <p className="mt-5 rounded-2xl bg-ink/5 p-4 text-sm leading-relaxed text-inksoft">
-            Comparamos comprar hoy, esperar y dividir el gasto en dos partes. Dividir es solo una simulación
-            hipotética: no significa que el comercio acepte pagos en partes. La decisión es tuya.
+            Te mostramos qué podría pasar para que puedas comparar. La decisión es tuya.
           </p>
         </GlassCard>
       </div>

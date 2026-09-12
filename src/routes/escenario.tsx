@@ -6,10 +6,8 @@ import { GlassCard, SectionTitle } from "@/components/ui/GlassCard";
 import { RISK_LABEL, RiskBar, ScenarioGrid } from "@/components/finance/ScenarioCards";
 import { useOverview } from "@/hooks/useFinance";
 import { compareScenarios } from "@/lib/finance/simulation";
-import { formatMoney, formatShortDate, percent } from "@/lib/finance/format";
+import { formatMoney, percent } from "@/lib/finance/format";
 import { defaultScenarioInput, loadScenarioInput, type ScenarioInput } from "@/lib/finance/scenario-input";
-import { describeGoalDecisionImpact } from "@/lib/finance/goal-impact";
-import { buildDecisionReason } from "@/lib/finance/decision-reason";
 
 export const Route = createFileRoute("/escenario")({
   head: () => ({
@@ -49,7 +47,6 @@ function ScenarioSummary() {
 
   const { current, withAction: withPurchase, alternative } = comparison;
   const marginDrop = current.breakdown.marginForSurprises - withPurchase.breakdown.marginForSurprises;
-  const reason = buildDecisionReason(snapshot, withPurchase);
 
   return (
     <AppShell greeting="Resumen del escenario">
@@ -89,16 +86,11 @@ function ScenarioSummary() {
               </div>
             </div>
             <div className="rounded-2xl glass-soft p-4">
-              <div className="text-[11px] uppercase tracking-wider text-inksoft">
-                Punto más bajo
-                {withPurchase.breakdown.minimumBalanceDate
-                  ? ` · ${formatShortDate(withPurchase.breakdown.minimumBalanceDate)}`
-                  : ""}
-              </div>
+              <div className="text-[11px] uppercase tracking-wider text-inksoft">Margen imprevistos</div>
               <div
-                className={`mt-1 font-display text-2xl font-bold ${withPurchase.breakdown.marginAtMinimum < 0 ? "text-rose" : "text-mint"}`}
+                className={`mt-1 font-display text-2xl font-bold ${withPurchase.breakdown.marginForSurprises < 0 ? "text-rose" : "text-mint"}`}
               >
-                {formatMoney(withPurchase.breakdown.minimumBalance)}
+                {formatMoney(withPurchase.breakdown.marginForSurprises)}
               </div>
             </div>
             <div className="rounded-2xl glass-soft p-4">
@@ -151,59 +143,47 @@ function ScenarioSummary() {
 
         <GlassCard>
           <SectionTitle title="Impacto en tus metas" />
-          <div className="mt-4 space-y-4">
-            {snapshot.goals.length === 0 ? (
-              <p className="text-[12px] text-inksoft">
-                No registras metas de ahorro, así que no podemos estimar un efecto sobre ellas.
-              </p>
-            ) : null}
-            {snapshot.goals.map((goal) => {
-              const impact = describeGoalDecisionImpact({
-                goal,
-                amountUsed: withPurchase.breakdown.amountUsed,
-                availableToDecide: overview.availableToDecide,
-                marginAtMinimum: withPurchase.breakdown.marginAtMinimum,
-              });
-              return (
-                <div key={goal.id}>
-                  <div className="flex justify-between text-[12px]">
-                    <span className="font-semibold">{goal.name}</span>
-                    <span className="text-inksoft">{percent(impact.progress)}</span>
-                  </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink/10">
-                    <div
-                      className="grow-x h-full rounded-full gradient-brand"
-                      style={{ width: percent(impact.progress) }}
-                    />
-                  </div>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-inksoft">{impact.message}</p>
+          <div className="mt-4 space-y-3">
+            {withPurchase.goalImpacts.map((impact) => (
+              <div key={impact.goalId}>
+                <div className="flex justify-between text-[12px]">
+                  <span className="font-semibold">{impact.goalName}</span>
+                  <span className="text-inksoft">
+                    {percent(impact.progressBefore)} → {percent(impact.progressAfter)}
+                  </span>
                 </div>
-              );
-            })}
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink/10">
+                  <div
+                    className="grow-x h-full rounded-full gradient-brand"
+                    style={{ width: percent(impact.progressAfter) }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </GlassCard>
 
         <GlassCard>
-          <SectionTitle title="Por qué" />
+          <SectionTitle title="Comparación" />
           <div className="mt-4 space-y-3 text-[12px] text-inksoft">
-            <p className="font-display text-sm font-bold text-ink">{reason.headline}</p>
-            <p className="leading-relaxed">{reason.detail}</p>
             <p>
-              Hoy, sin esta compra, tu punto más bajo sería{" "}
-              <span className="font-semibold text-ink">{formatMoney(current.breakdown.minimumBalance)}</span>; con
-              la compra bajaría{" "}
-              <span className="font-semibold text-ink">{formatMoney(Math.abs(marginDrop))}</span> tu margen.
+              Hoy tu margen para un gasto inesperado es de{" "}
+              <span className="font-semibold text-ink">{formatMoney(current.breakdown.marginForSurprises)}</span>.
             </p>
             <p>
-              {alternative.title}: punto más bajo de{" "}
+              Con esta compra bajaría{" "}
+              <span className="font-semibold text-ink">{formatMoney(Math.abs(marginDrop))}</span>.
+            </p>
+            <p>
+              {alternative.title}:{" "}
               <span className="font-semibold text-ink">
-                {formatMoney(alternative.breakdown.minimumBalance)}
-              </span>
-              .
+                {formatMoney(alternative.breakdown.marginForSurprises)}
+              </span>{" "}
+              de margen.
             </p>
             <p className="rounded-xl bg-ink/5 p-3 leading-relaxed">
-              Dividir el gasto es solo una simulación: no quiere decir que el comercio acepte pagos en partes.
-              Te mostramos las opciones; tú eliges.
+              Disponible razonable para decisiones hoy: {formatMoney(overview.availableToDecide)}. Te mostramos
+              las opciones; tú eliges la que te acomode.
             </p>
           </div>
         </GlassCard>

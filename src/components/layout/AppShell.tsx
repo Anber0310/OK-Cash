@@ -9,7 +9,6 @@ const NAV = [
   { to: "/pagos", label: "Pagos" },
   { to: "/metas", label: "Metas" },
   { to: "/calendario", label: "Calendario" },
-  { to: "/transacciones", label: "Datos de origen" },
 ] as const;
 
 function GoalMiniProgress() {

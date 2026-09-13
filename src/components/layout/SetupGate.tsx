@@ -32,6 +32,12 @@ export function SetupGate({ children }: { children: ReactNode }) {
           >
             Comenzar configuración
           </Link>
+          <Link
+            to="/perfiles"
+            className="mt-3 block rounded-xl border border-white/70 bg-white/60 px-4 py-3 text-sm font-semibold text-ink"
+          >
+            Usar un perfil de demostración
+          </Link>
         </div>
       </div>
     );

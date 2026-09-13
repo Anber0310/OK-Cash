@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as ConfiguracionRouteImport } from './routes/configuracion'
+import { Route as DatosOrigenRouteImport } from './routes/datos-origen'
 import { Route as EscenarioRouteImport } from './routes/escenario'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MisDatosRouteImport } from './routes/mis-datos'
 import { Route as PagosRouteImport } from './routes/pagos'
+import { Route as PerfilesRouteImport } from './routes/perfiles'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 
 const IndexRoute = IndexRouteImport.update({
@@ -31,6 +33,11 @@ const CalendarioRoute = CalendarioRouteImport.update({
 const ConfiguracionRoute = ConfiguracionRouteImport.update({
   id: '/configuracion',
   path: '/configuracion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatosOrigenRoute = DatosOrigenRouteImport.update({
+  id: '/datos-origen',
+  path: '/datos-origen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EscenarioRoute = EscenarioRouteImport.update({
@@ -53,6 +60,11 @@ const PagosRoute = PagosRouteImport.update({
   path: '/pagos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PerfilesRoute = PerfilesRouteImport.update({
+  id: '/perfiles',
+  path: '/perfiles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimuladorRoute = SimuladorRouteImport.update({
   id: '/simulador',
   path: '/simulador',
@@ -63,20 +75,24 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/datos-origen': typeof DatosOrigenRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
   '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
+  '/perfiles': typeof PerfilesRoute
   '/simulador': typeof SimuladorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/datos-origen': typeof DatosOrigenRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
   '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
+  '/perfiles': typeof PerfilesRoute
   '/simulador': typeof SimuladorRoute
 }
 export interface FileRoutesById {
@@ -84,10 +100,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/datos-origen': typeof DatosOrigenRoute
   '/escenario': typeof EscenarioRoute
   '/metas': typeof MetasRoute
   '/mis-datos': typeof MisDatosRoute
   '/pagos': typeof PagosRoute
+  '/perfiles': typeof PerfilesRoute
   '/simulador': typeof SimuladorRoute
 }
 export interface FileRouteTypes {
@@ -96,30 +114,36 @@ export interface FileRouteTypes {
     | '/'
     | '/calendario'
     | '/configuracion'
+    | '/datos-origen'
     | '/escenario'
     | '/metas'
     | '/mis-datos'
     | '/pagos'
+    | '/perfiles'
     | '/simulador'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/calendario'
     | '/configuracion'
+    | '/datos-origen'
     | '/escenario'
     | '/metas'
     | '/mis-datos'
     | '/pagos'
+    | '/perfiles'
     | '/simulador'
   id:
     | '__root__'
     | '/'
     | '/calendario'
     | '/configuracion'
+    | '/datos-origen'
     | '/escenario'
     | '/metas'
     | '/mis-datos'
     | '/pagos'
+    | '/perfiles'
     | '/simulador'
   fileRoutesById: FileRoutesById
 }
@@ -127,10 +151,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarioRoute: typeof CalendarioRoute
   ConfiguracionRoute: typeof ConfiguracionRoute
+  DatosOrigenRoute: typeof DatosOrigenRoute
   EscenarioRoute: typeof EscenarioRoute
   MetasRoute: typeof MetasRoute
   MisDatosRoute: typeof MisDatosRoute
   PagosRoute: typeof PagosRoute
+  PerfilesRoute: typeof PerfilesRoute
   SimuladorRoute: typeof SimuladorRoute
 }
 
@@ -155,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracion'
       fullPath: '/configuracion'
       preLoaderRoute: typeof ConfiguracionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datos-origen': {
+      id: '/datos-origen'
+      path: '/datos-origen'
+      fullPath: '/datos-origen'
+      preLoaderRoute: typeof DatosOrigenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/escenario': {
@@ -185,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PagosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/perfiles': {
+      id: '/perfiles'
+      path: '/perfiles'
+      fullPath: '/perfiles'
+      preLoaderRoute: typeof PerfilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/simulador': {
       id: '/simulador'
       path: '/simulador'
@@ -199,10 +239,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarioRoute: CalendarioRoute,
   ConfiguracionRoute: ConfiguracionRoute,
+  DatosOrigenRoute: DatosOrigenRoute,
   EscenarioRoute: EscenarioRoute,
   MetasRoute: MetasRoute,
   MisDatosRoute: MisDatosRoute,
   PagosRoute: PagosRoute,
+  PerfilesRoute: PerfilesRoute,
   SimuladorRoute: SimuladorRoute,
 }
 export const routeTree = rootRouteImport

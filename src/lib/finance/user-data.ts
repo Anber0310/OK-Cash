@@ -169,16 +169,165 @@ export function toSnapshot(data: UserFinancialData, asOf = new Date().toISOStrin
   };
 }
 
+/* ---------- Perfiles (demo / pruebas) ---------- */
+
+/**
+ * Cada perfil guarda sus propios datos por separado. No es autenticación:
+ * es una forma sencilla de mantener escenarios independientes para la demo
+ * y para pruebas, sin mezclar el dinero de uno con el de otro.
+ */
+export interface ProfileInfo {
+  id: string;
+  name: string;
+  createdAt: string;
+  kind: "demo" | "personal";
+}
+
+interface ProfileRegistry {
+  version: 1;
+  activeId: string | null;
+  profiles: ProfileInfo[];
+}
+
+const PROFILES_KEY = "okcash.profiles.v1";
+
+function dataKeyFor(profileId: string): string {
+  return `${STORAGE_KEY}::${profileId}`;
+}
+
+function emptyRegistry(): ProfileRegistry {
+  return { version: 1, activeId: null, profiles: [] };
+}
+
+function readRegistry(): ProfileRegistry {
+  if (typeof window === "undefined") return emptyRegistry();
+  try {
+    const raw = window.localStorage.getItem(PROFILES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as ProfileRegistry;
+      if (parsed && Array.isArray(parsed.profiles)) return parsed;
+    }
+  } catch {
+    /* registro ilegible: se reconstruye */
+  }
+
+  // Migración de la versión anterior (un solo conjunto de datos sin perfiles).
+  const registry = emptyRegistry();
+  const legacy = window.localStorage.getItem(STORAGE_KEY);
+  if (legacy) {
+    const profile: ProfileInfo = {
+      id: "personal",
+      name: "Mis datos",
+      createdAt: new Date().toISOString(),
+      kind: "personal",
+    };
+    registry.profiles.push(profile);
+    registry.activeId = profile.id;
+    window.localStorage.setItem(dataKeyFor(profile.id), legacy);
+  }
+  writeRegistry(registry);
+  return registry;
+}
+
+function writeRegistry(registry: ProfileRegistry): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(PROFILES_KEY, JSON.stringify(registry));
+}
+
+export function listProfiles(): ProfileInfo[] {
+  return readRegistry().profiles;
+}
+
+export function getActiveProfile(): ProfileInfo | null {
+  const registry = readRegistry();
+  return registry.profiles.find((p) => p.id === registry.activeId) ?? null;
+}
+
+/** Crea un perfil nuevo (opcionalmente con datos iniciales) y lo activa. */
+export function createProfile(
+  name: string,
+  options: { kind?: ProfileInfo["kind"]; data?: UserFinancialData } = {},
+): ProfileInfo | null {
+  if (typeof window === "undefined") return null;
+  const registry = readRegistry();
+  const profile: ProfileInfo = {
+    id: makeId("prof"),
+    name: name.trim() || "Perfil sin nombre",
+    createdAt: new Date().toISOString(),
+    kind: options.kind ?? "personal",
+  };
+  registry.profiles.push(profile);
+  registry.activeId = profile.id;
+  writeRegistry(registry);
+  if (options.data) {
+    window.localStorage.setItem(dataKeyFor(profile.id), JSON.stringify(options.data));
+  }
+  invalidate();
+  return profile;
+}
+
+export function switchProfile(profileId: string): void {
+  const registry = readRegistry();
+  if (!registry.profiles.some((p) => p.id === profileId)) return;
+  registry.activeId = profileId;
+  writeRegistry(registry);
+  invalidate();
+}
+
+/** Borra los datos del perfil indicado sin afectar a los demás perfiles. */
+export function resetProfileData(profileId: string): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(dataKeyFor(profileId));
+  invalidate();
+}
+
+export function deleteProfile(profileId: string): void {
+  if (typeof window === "undefined") return;
+  const registry = readRegistry();
+  registry.profiles = registry.profiles.filter((p) => p.id !== profileId);
+  if (registry.activeId === profileId) {
+    registry.activeId = registry.profiles[0]?.id ?? null;
+  }
+  writeRegistry(registry);
+  window.localStorage.removeItem(dataKeyFor(profileId));
+  invalidate();
+}
+
 /* ---------- Persistencia local ---------- */
 
 let cache: UserFinancialData | null = null;
 let loaded = false;
 const listeners = new Set<() => void>();
 
+function invalidate(): void {
+  cache = null;
+  loaded = false;
+  listeners.forEach((l) => l());
+}
+
+/** Perfil activo; si no existe ninguno se crea uno para los datos manuales. */
+function activeDataKey(): string | null {
+  if (typeof window === "undefined") return null;
+  const registry = readRegistry();
+  if (registry.activeId) return dataKeyFor(registry.activeId);
+  const profile: ProfileInfo = {
+    id: "personal",
+    name: "Mis datos",
+    createdAt: new Date().toISOString(),
+    kind: "personal",
+  };
+  registry.profiles.push(profile);
+  registry.activeId = profile.id;
+  writeRegistry(registry);
+  return dataKeyFor(profile.id);
+}
+
 function read(): UserFinancialData | null {
   if (typeof window === "undefined") return null;
+  const key = activeDataKey();
+  if (!key) return null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as UserFinancialData;
     if (!parsed || parsed.version !== 1) return null;
@@ -206,17 +355,20 @@ export function getUserData(): UserFinancialData | null {
 
 export function saveUserData(data: UserFinancialData): void {
   if (typeof window === "undefined") return;
+  const key = activeDataKey();
+  if (!key) return;
   cache = data;
   loaded = true;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  window.localStorage.setItem(key, JSON.stringify(data));
   listeners.forEach((l) => l());
 }
 
 export function clearUserData(): void {
   if (typeof window === "undefined") return;
+  const key = activeDataKey();
   cache = null;
   loaded = true;
-  window.localStorage.removeItem(STORAGE_KEY);
+  if (key) window.localStorage.removeItem(key);
   listeners.forEach((l) => l());
 }
 

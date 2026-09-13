@@ -24,7 +24,7 @@ export interface NessieRawResult {
   transactions: RawTransaction[];
 }
 
-const BASE_URL = "http://api.nessieisreal.com";
+const BASE_URL = "https://api.nessieisreal.com";
 
 function pickDate(record: Record<string, unknown>): string {
   const candidates = [

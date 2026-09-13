@@ -165,7 +165,9 @@ function riskFromTimeline(
 
   if (minimumBalance < 0) return { level: "risky", score: 0, label: "En riesgo" };
   if (minimumBalance < reserve) return { level: "tight", score, label: "Muy ajustada" };
-  if (margin / base < 0.2) return { level: "watch", score, label: "Con cuidado" };
+  // Mismo criterio que el análisis del dashboard: por debajo de 25% de margen
+  // el escenario se describe como reducido, aunque siga siendo positivo.
+  if (margin / base < 0.25) return { level: "watch", score, label: "Con cuidado" };
   return { level: "safe", score, label: "Holgada" };
 }
 
